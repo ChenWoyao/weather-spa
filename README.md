@@ -1,36 +1,21 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### 项目
 
-## Getting Started
+城市天气预报， 可以看城市最近 7 天的温度和天气
 
-First, run the development server:
+### 实现细节
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. 温度使用折线表示，横坐标是最近 7 天的日期，纵坐标是温度。绘制两条曲线，一条曲线表示最低温度，一条曲线表示最高温度。
+   在日期下面可以方式天气图标
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. 上方支持输入框输入其他城市，获取其他城市的天气信息
+   autocomplete 组件
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 用到的工具库
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+dayjs + ant-design + @ant-design/plots（推荐）or echarts or d3 + ahooks 引入 useDebounce 防止频繁调度 + lodash + axios
 
-## Learn More
+1. nextjs 接入 antd: https://ant.design/docs/react/use-with-next-cn
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. 天气接入： 心知 api
+   公钥：PWma9RiB\_\_h75bAfv
+   免费用户只能返回 3 天的天气
