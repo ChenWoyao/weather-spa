@@ -1,7 +1,7 @@
 'use client';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { AutoComplete, Card, Alert, Row, Col, Table } from 'antd';
-import { Line } from '@ant-design/plots';
+import ReactECharts from 'echarts-for-react';
 import { debounce } from 'lodash';
 import dayjs from 'dayjs';
 import { getWeatherForecast } from '@/services/weatherService';
@@ -21,35 +21,44 @@ const WeatherForecast: React.FC = () => {
   const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
   const [errMsg, setErrMsg] = useState('');
 
-  const fetchData = (cityName: string) => {
-    getWeatherForecast(cityName)
-      .then((data) => {
-        const { results = [] } = data || {};
-        const processedData = results[0].daily;
-        setErrMsg('');
-        setWeatherData(processedData);
-      })
-      .catch((error) => {
-        setErrMsg(error?.message || '获取天气预报失败');
-        setWeatherData([]);
-      });
-  };
+  // 设置天气数据
+  const debounceFetchData = useCallback((cityName: string) => {
+    const fetchData = debounce(() => {
+      getWeatherForecast(cityName)
+        .then((data) => {
+          const { results = [] } = data || {};
+          const processedData = results[0].daily;
+          setErrMsg('');
+          setWeatherData(processedData);
+        })
+        .catch((error) => {
+          setErrMsg(error?.message || '获取天气预报失败');
+          setWeatherData([]);
+        });
+    }, 500);
+    return fetchData;
+  }, []);
 
-  const debounceFetchData = useCallback(debounce(fetchData, 800), []);
+  useEffect(() => {
+    debounceFetchData(city)();
+    return () => {
+      debounceFetchData(city).cancel();
+    };
+  }, [city, debounceFetchData]);
 
   const formatDate = useMemo(() => {
     const result = weatherData.flatMap((item: WeatherData) => [
       {
         date: dayjs(item.date).format('MM-DD'),
         temperature: parseInt(item.high),
-        type: '最高温度',
+        type: 'high',
         text_day: item.text_day,
         text_night: item.text_night,
       },
       {
         date: dayjs(item.date).format('MM-DD'),
         temperature: parseInt(item.low),
-        type: '最低温度',
+        type: 'low',
         text_day: item.text_day,
         text_night: item.text_night,
       },
@@ -57,41 +66,41 @@ const WeatherForecast: React.FC = () => {
     return result;
   }, [weatherData]);
 
-  useEffect(() => {
-    debounceFetchData(city);
-  }, [city, debounceFetchData]);
-
   // 配置折线图
-  const config = {
-    data: formatDate,
-    xField: 'date',
-    yField: 'temperature',
-    seriesField: 'type',
+  const option = {
+    title: {
+      text: '城市天气预报',
+    },
+    tooltip: {
+      trigger: 'axis',
+    },
     legend: {
-      position: 'top',
+      data: ['最高温度', '最低温度'],
+      top: '10%',
     },
-    smooth: true,
-    animation: {
-      appear: {
-        animation: 'path-in',
-        duration: 1000,
-      },
+    xAxis: {
+      type: 'category',
+      data: weatherData.map((item) => item.date),
+      name: '日期',
     },
-    axis: {
-      x: {
-        title: '日期',
-      },
-      y: {
-        title: '温度 (°C)',
-      },
+    yAxis: {
+      type: 'value',
+      name: '温度 (°C)',
     },
-    point: {
-      size: 5,
-      shape: 'circle',
-      style: {
-        fillOpacity: 1,
+    series: [
+      {
+        name: '最高温度',
+        type: 'line',
+        data: formatDate.filter((item) => item.type === 'high').map((item) => item.temperature),
+        smooth: true,
       },
-    },
+      {
+        name: '最低温度',
+        type: 'line',
+        data: formatDate.filter((item) => item.type === 'low').map((item) => item.temperature),
+        smooth: true,
+      },
+    ],
   };
 
   return (
@@ -113,7 +122,8 @@ const WeatherForecast: React.FC = () => {
       </Row>
 
       {errMsg && <Alert message={errMsg} type='info' />}
-      <Line {...config} />
+
+      <ReactECharts option={option} style={{ height: '400px', width: '100%' }} />
 
       <Table
         dataSource={weatherData}

@@ -10,12 +10,14 @@
 2. 上方支持输入框输入其他城市，获取其他城市的天气信息
    autocomplete 组件
 
+3.
+
 ### 用到的工具库
 
-dayjs + ant-design + @ant-design/plots（推荐）or echarts or d3 + ahooks 引入 useDebounce 防止频繁调度 + lodash + axios
+dayjs + ant-design + echarts-for-react + ahooks 引入 useDebounce 防止频繁调度 + lodash + axios
 
 1. nextjs 接入 antd: https://ant.design/docs/react/use-with-next-cn
 
-2. 天气接入： 心知 api
-   公钥：PWma9RiB\_\_h75bAfv
-   免费用户只能返回 3 天的天气
+2. 天气接入： 心知 api **【免费用户只能返回 3 天的天气】**
+
+3. 城市列表 api 获取
