@@ -22,3 +22,7 @@ dayjs + ant-design + echarts-for-react + ahooks 引入 useDebounce 防止频繁�
 
 1. npm install
 2. npm run dev
+
+### 线上地址:
+
+https://weather-spa-eta.vercel.app/
